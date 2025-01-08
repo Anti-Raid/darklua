@@ -294,6 +294,12 @@ fn last_statement_token(statement: &Statement) -> Option<&Token> {
         Statement::LocalFunction(local_function) => {
             local_function.get_tokens().map(|tokens| &tokens.end)
         }
+        Statement::TypeFunction(type_function) => {
+            type_function.get_tokens().map(|tokens| &tokens.end)
+        }
+        Statement::ExportTypeFunction(export_type_function) => {
+            export_type_function.get_tokens().map(|tokens| &tokens.end)
+        }
         Statement::NumericFor(numeric_for) => numeric_for.get_tokens().map(|tokens| &tokens.end),
         Statement::Repeat(repeat) => last_expression_token(repeat.get_condition()),
         Statement::While(while_statement) => while_statement.get_tokens().map(|tokens| &tokens.end),

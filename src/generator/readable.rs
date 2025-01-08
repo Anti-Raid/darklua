@@ -12,6 +12,8 @@ enum StatementType {
     If,
     LocalAssign,
     LocalFunction,
+    TypeFunction,
+    ExportTypeFunction,
     NumericFor,
     Repeat,
     While,
@@ -34,6 +36,8 @@ impl From<&nodes::Statement> for StatementType {
             If(_) => Self::If,
             LocalAssign(_) => Self::LocalAssign,
             LocalFunction(_) => Self::LocalFunction,
+            TypeFunction(_) => Self::TypeFunction,
+            ExportTypeFunction(_) => Self::ExportTypeFunction,
             NumericFor(_) => Self::NumericFor,
             Repeat(_) => Self::Repeat,
             While(_) => Self::While,
@@ -593,6 +597,72 @@ impl LuaGenerator for ReadableLuaGenerator {
 
     fn write_local_function(&mut self, function: &nodes::LocalFunctionStatement) {
         self.push_str("local function ");
+        self.raw_push_str(function.get_name());
+
+        if let Some(generics) = function.get_generic_parameters() {
+            self.write_function_generics(generics);
+        }
+
+        self.raw_push_char('(');
+
+        let parameters = function.get_parameters();
+        self.write_function_parameters(
+            parameters,
+            function.is_variadic(),
+            function.get_variadic_type(),
+        );
+        self.raw_push_char(')');
+
+        if let Some(return_type) = function.get_return_type() {
+            self.write_function_return_type_suffix(return_type);
+        }
+
+        let block = function.get_block();
+
+        if block.is_empty() {
+            self.raw_push_str(" end");
+        } else {
+            self.push_new_line();
+            self.indent_and_write_block(block);
+            self.push_str("end");
+        }
+    }
+
+    fn write_type_function(&mut self, function: &nodes::TypeFunctionStatement) {
+        self.push_str("type function ");
+        self.raw_push_str(function.get_name());
+
+        if let Some(generics) = function.get_generic_parameters() {
+            self.write_function_generics(generics);
+        }
+
+        self.raw_push_char('(');
+
+        let parameters = function.get_parameters();
+        self.write_function_parameters(
+            parameters,
+            function.is_variadic(),
+            function.get_variadic_type(),
+        );
+        self.raw_push_char(')');
+
+        if let Some(return_type) = function.get_return_type() {
+            self.write_function_return_type_suffix(return_type);
+        }
+
+        let block = function.get_block();
+
+        if block.is_empty() {
+            self.raw_push_str(" end");
+        } else {
+            self.push_new_line();
+            self.indent_and_write_block(block);
+            self.push_str("end");
+        }
+    }
+
+    fn write_export_type_function(&mut self, function: &nodes::ExportTypeFunctionStatement) {
+        self.push_str("export type function ");
         self.raw_push_str(function.get_name());
 
         if let Some(generics) = function.get_generic_parameters() {

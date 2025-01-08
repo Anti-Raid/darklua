@@ -34,6 +34,10 @@ pub trait NodePostVisitor<T: NodeProcessor + NodePostProcessor> {
             Statement::GenericFor(statement) => Self::visit_generic_for(statement, processor),
             Statement::If(statement) => Self::visit_if_statement(statement, processor),
             Statement::LocalAssign(statement) => Self::visit_local_assign(statement, processor),
+            Statement::TypeFunction(statement) => Self::visit_type_function(statement, processor),
+            Statement::ExportTypeFunction(statement) => {
+                Self::visit_export_type_function(statement, processor)
+            }
             Statement::LocalFunction(statement) => Self::visit_local_function(statement, processor),
             Statement::NumericFor(statement) => Self::visit_numeric_for(statement, processor),
             Statement::Repeat(statement) => Self::visit_repeat_statement(statement, processor),
@@ -299,6 +303,50 @@ pub trait NodePostVisitor<T: NodeProcessor + NodePostProcessor> {
             Self::visit_function_return_type(return_type, processor);
         }
         processor.process_after_local_function_statement(statement);
+    }
+
+    fn visit_type_function(statement: &mut TypeFunctionStatement, processor: &mut T) {
+        processor.process_type_function_statement(statement);
+        processor.process_scope(statement.mutate_block(), None);
+        Self::visit_block(statement.mutate_block(), processor);
+
+        for r#type in statement
+            .iter_mut_parameters()
+            .filter_map(TypedIdentifier::mutate_type)
+        {
+            Self::visit_type(r#type, processor);
+        }
+
+        if let Some(variadic_type) = statement.mutate_variadic_type() {
+            Self::visit_function_variadic_type(variadic_type, processor);
+        }
+
+        if let Some(return_type) = statement.mutate_return_type() {
+            Self::visit_function_return_type(return_type, processor);
+        }
+        processor.process_after_type_function_statement(statement);
+    }
+
+    fn visit_export_type_function(statement: &mut ExportTypeFunctionStatement, processor: &mut T) {
+        processor.process_export_type_function_statement(statement);
+        processor.process_scope(statement.mutate_block(), None);
+        Self::visit_block(statement.mutate_block(), processor);
+
+        for r#type in statement
+            .iter_mut_parameters()
+            .filter_map(TypedIdentifier::mutate_type)
+        {
+            Self::visit_type(r#type, processor);
+        }
+
+        if let Some(variadic_type) = statement.mutate_variadic_type() {
+            Self::visit_function_variadic_type(variadic_type, processor);
+        }
+
+        if let Some(return_type) = statement.mutate_return_type() {
+            Self::visit_function_return_type(return_type, processor);
+        }
+        processor.process_after_export_type_function_statement(statement);
     }
 
     fn visit_function_variadic_type(variadic_type: &mut FunctionVariadicType, processor: &mut T) {

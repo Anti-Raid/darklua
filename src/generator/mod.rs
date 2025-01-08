@@ -33,6 +33,8 @@ pub trait LuaGenerator {
             If(statement) => self.write_if_statement(statement),
             LocalAssign(statement) => self.write_local_assign(statement),
             LocalFunction(statement) => self.write_local_function(statement),
+            TypeFunction(statement) => self.write_type_function(statement),
+            ExportTypeFunction(statement) => self.write_export_type_function(statement),
             NumericFor(statement) => self.write_numeric_for(statement),
             Repeat(statement) => self.write_repeat_statement(statement),
             While(statement) => self.write_while_statement(statement),
@@ -49,6 +51,8 @@ pub trait LuaGenerator {
     fn write_last_statement(&mut self, statement: &nodes::LastStatement);
     fn write_local_assign(&mut self, assign: &nodes::LocalAssignStatement);
     fn write_local_function(&mut self, function: &nodes::LocalFunctionStatement);
+    fn write_type_function(&mut self, function: &nodes::TypeFunctionStatement);
+    fn write_export_type_function(&mut self, function: &nodes::ExportTypeFunctionStatement);
     fn write_numeric_for(&mut self, numeric_for: &nodes::NumericForStatement);
     fn write_repeat_statement(&mut self, repeat: &nodes::RepeatStatement);
     fn write_while_statement(&mut self, while_statement: &nodes::WhileStatement);

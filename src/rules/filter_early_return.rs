@@ -35,6 +35,8 @@ impl Processor {
                 | Statement::If(_)
                 | Statement::LocalAssign(_)
                 | Statement::LocalFunction(_)
+                | Statement::TypeFunction(_)
+                | Statement::ExportTypeFunction(_)
                 | Statement::NumericFor(_)
                 | Statement::Repeat(_)
                 | Statement::While(_)

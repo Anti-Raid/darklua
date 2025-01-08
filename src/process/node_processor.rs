@@ -18,6 +18,8 @@ pub trait NodeProcessor {
     fn process_last_statement(&mut self, _: &mut LastStatement) {}
     fn process_local_assign_statement(&mut self, _: &mut LocalAssignStatement) {}
     fn process_local_function_statement(&mut self, _: &mut LocalFunctionStatement) {}
+    fn process_type_function_statement(&mut self, _: &mut TypeFunctionStatement) {}
+    fn process_export_type_function_statement(&mut self, _: &mut ExportTypeFunctionStatement) {}
     fn process_numeric_for_statement(&mut self, _: &mut NumericForStatement) {}
     fn process_repeat_statement(&mut self, _: &mut RepeatStatement) {}
     fn process_while_statement(&mut self, _: &mut WhileStatement) {}
@@ -77,6 +79,12 @@ pub trait NodePostProcessor {
     fn process_after_last_statement(&mut self, _: &mut LastStatement) {}
     fn process_after_local_assign_statement(&mut self, _: &mut LocalAssignStatement) {}
     fn process_after_local_function_statement(&mut self, _: &mut LocalFunctionStatement) {}
+    fn process_after_type_function_statement(&mut self, _: &mut TypeFunctionStatement) {}
+    fn process_after_export_type_function_statement(
+        &mut self,
+        _: &mut ExportTypeFunctionStatement,
+    ) {
+    }
     fn process_after_numeric_for_statement(&mut self, _: &mut NumericForStatement) {}
     fn process_after_repeat_statement(&mut self, _: &mut RepeatStatement) {}
     fn process_after_while_statement(&mut self, _: &mut WhileStatement) {}

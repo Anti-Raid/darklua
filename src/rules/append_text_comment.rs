@@ -3,10 +3,10 @@ use std::path::{Path, PathBuf};
 use std::sync::OnceLock;
 
 use crate::nodes::{
-    Block, BlockTokens, DoTokens, FunctionBodyTokens, GenericForTokens, Identifier,
-    IfStatementTokens, LastStatement, LocalAssignTokens, LocalFunctionTokens, NumericForTokens,
-    ParentheseExpression, ParentheseTokens, Prefix, RepeatTokens, ReturnTokens, Statement, Token,
-    TriviaKind, TypeDeclarationTokens, Variable, WhileTokens,
+    Block, BlockTokens, DoTokens, ExportTypeFunctionTokens, FunctionBodyTokens, GenericForTokens,
+    Identifier, IfStatementTokens, LastStatement, LocalAssignTokens, LocalFunctionTokens,
+    NumericForTokens, ParentheseExpression, ParentheseTokens, Prefix, RepeatTokens, ReturnTokens,
+    Statement, Token, TriviaKind, TypeDeclarationTokens, TypeFunctionTokens, Variable, WhileTokens,
 };
 use crate::rules::{
     verify_property_collisions, verify_required_any_properties, Context, Rule, RuleConfiguration,
@@ -209,6 +209,52 @@ impl Rule for AppendTextComment {
 
                                 local_function.set_tokens(LocalFunctionTokens {
                                     local: token,
+                                    function_body: FunctionBodyTokens {
+                                        function: Token::from_content("function"),
+                                        opening_parenthese: Token::from_content("("),
+                                        closing_parenthese: Token::from_content(")"),
+                                        end: Token::from_content("end"),
+                                        parameter_commas: Vec::new(),
+                                        variable_arguments: None,
+                                        variable_arguments_colon: None,
+                                        return_type_colon: None,
+                                    },
+                                });
+                            }
+                        }
+                        Statement::TypeFunction(type_function) => {
+                            if let Some(tokens) = type_function.mutate_tokens() {
+                                self.location.append_comment(&mut tokens.r#type, text);
+                            } else {
+                                let mut token = Token::from_content("type");
+                                self.location.append_comment(&mut token, text);
+
+                                type_function.set_tokens(TypeFunctionTokens {
+                                    r#type: token,
+                                    function_body: FunctionBodyTokens {
+                                        function: Token::from_content("function"),
+                                        opening_parenthese: Token::from_content("("),
+                                        closing_parenthese: Token::from_content(")"),
+                                        end: Token::from_content("end"),
+                                        parameter_commas: Vec::new(),
+                                        variable_arguments: None,
+                                        variable_arguments_colon: None,
+                                        return_type_colon: None,
+                                    },
+                                });
+                            }
+                        }
+                        Statement::ExportTypeFunction(export_type_function) => {
+                            if let Some(tokens) = export_type_function.mutate_tokens() {
+                                self.location.append_comment(&mut tokens.r#export, text);
+                            } else {
+                                let mut token_a = Token::from_content("export");
+                                self.location.append_comment(&mut token_a, text);
+                                let token_b = Token::from_content("type");
+
+                                export_type_function.set_tokens(ExportTypeFunctionTokens {
+                                    export: token_a,
+                                    r#type: token_b,
                                     function_body: FunctionBodyTokens {
                                         function: Token::from_content("function"),
                                         opening_parenthese: Token::from_content("("),

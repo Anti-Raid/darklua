@@ -13,7 +13,14 @@ struct RemoveTypesProcessor {
 
 impl NodeProcessor for RemoveTypesProcessor {
     fn process_block(&mut self, block: &mut Block) {
-        block.filter_statements(|statement| !matches!(statement, Statement::TypeDeclaration(_)));
+        block.filter_statements(|statement| {
+            !matches!(
+                statement,
+                Statement::TypeDeclaration(_)
+                    | Statement::TypeFunction(_)
+                    | Statement::ExportTypeFunction(_)
+            )
+        });
     }
 
     fn process_local_assign_statement(&mut self, local_assign: &mut LocalAssignStatement) {
@@ -34,6 +41,14 @@ impl NodeProcessor for RemoveTypesProcessor {
 
     fn process_local_function_statement(&mut self, function: &mut LocalFunctionStatement) {
         function.clear_types();
+    }
+
+    fn process_type_function_statement(&mut self, function: &mut TypeFunctionStatement) {
+        // Remove the type function statement
+        let mut assign = function.mutate_block();
+        // Create new block
+        let mut block = Block::new(vec![], None);
+        std::mem::swap(&mut assign, &mut &mut block);
     }
 
     fn process_function_expression(&mut self, function: &mut FunctionExpression) {
