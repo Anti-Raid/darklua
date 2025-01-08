@@ -1,7 +1,8 @@
 use super::{
-    Block, FunctionExpression, FunctionName, FunctionReturnType, FunctionStatement,
-    FunctionVariadicType, GenericParameters, Identifier, LocalFunctionStatement,
-    LocalFunctionTokens, Token, TypedIdentifier,
+    Block, ExportTypeFunctionStatement, ExportTypeFunctionTokens, FunctionExpression, FunctionName,
+    FunctionReturnType, FunctionStatement, FunctionVariadicType, GenericParameters, Identifier,
+    LocalFunctionStatement, LocalFunctionTokens, Token, TypeFunctionStatement, TypeFunctionTokens,
+    TypedIdentifier,
 };
 
 pub(crate) struct FunctionBuilder {
@@ -153,6 +154,112 @@ impl FunctionBuilder {
         ) {
             statement.set_tokens(LocalFunctionTokens {
                 local,
+                function_body: FunctionBodyTokens {
+                    function,
+                    opening_parenthese,
+                    closing_parenthese,
+                    end,
+                    parameter_commas: self.parameter_commas,
+                    variable_arguments: self.variable_arguments,
+                    variable_arguments_colon: self.variable_arguments_colon,
+                    return_type_colon: self.return_type_colon,
+                },
+            });
+        }
+
+        statement
+    }
+
+    pub(crate) fn into_type_function_statement(
+        self,
+        name: Identifier,
+        type_token: Option<Token>,
+    ) -> TypeFunctionStatement {
+        let mut statement =
+            TypeFunctionStatement::new(name, self.block, self.parameters, self.is_variadic);
+
+        if let Some(variadic_type) = self.variadic_type {
+            statement.set_variadic_type(variadic_type);
+        }
+
+        if let Some(return_type) = self.return_type {
+            statement.set_return_type(return_type);
+        }
+
+        if let Some(generic_parameters) = self.generic_parameters {
+            statement.set_generic_parameters(generic_parameters);
+        }
+
+        if let (
+            Some(typ),
+            Some(function),
+            Some(opening_parenthese),
+            Some(closing_parenthese),
+            Some(end),
+        ) = (
+            type_token,
+            self.function,
+            self.opening_parenthese,
+            self.closing_parenthese,
+            self.end,
+        ) {
+            statement.set_tokens(TypeFunctionTokens {
+                r#type: typ,
+                function_body: FunctionBodyTokens {
+                    function,
+                    opening_parenthese,
+                    closing_parenthese,
+                    end,
+                    parameter_commas: self.parameter_commas,
+                    variable_arguments: self.variable_arguments,
+                    variable_arguments_colon: self.variable_arguments_colon,
+                    return_type_colon: self.return_type_colon,
+                },
+            });
+        }
+
+        statement
+    }
+
+    pub(crate) fn into_export_type_function_statement(
+        self,
+        name: Identifier,
+        export_token: Option<Token>,
+        type_token: Option<Token>,
+    ) -> ExportTypeFunctionStatement {
+        let mut statement =
+            ExportTypeFunctionStatement::new(name, self.block, self.parameters, self.is_variadic);
+
+        if let Some(variadic_type) = self.variadic_type {
+            statement.set_variadic_type(variadic_type);
+        }
+
+        if let Some(return_type) = self.return_type {
+            statement.set_return_type(return_type);
+        }
+
+        if let Some(generic_parameters) = self.generic_parameters {
+            statement.set_generic_parameters(generic_parameters);
+        }
+
+        if let (
+            Some(export),
+            Some(typ),
+            Some(function),
+            Some(opening_parenthese),
+            Some(closing_parenthese),
+            Some(end),
+        ) = (
+            export_token,
+            type_token,
+            self.function,
+            self.opening_parenthese,
+            self.closing_parenthese,
+            self.end,
+        ) {
+            statement.set_tokens(ExportTypeFunctionTokens {
+                export,
+                r#type: typ,
                 function_body: FunctionBodyTokens {
                     function,
                     opening_parenthese,

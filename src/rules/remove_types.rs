@@ -43,14 +43,6 @@ impl NodeProcessor for RemoveTypesProcessor {
         function.clear_types();
     }
 
-    fn process_type_function_statement(&mut self, function: &mut TypeFunctionStatement) {
-        // Remove the type function statement
-        let mut assign = function.mutate_block();
-        // Create new block
-        let mut block = Block::new(vec![], None);
-        std::mem::swap(&mut assign, &mut &mut block);
-    }
-
     fn process_function_expression(&mut self, function: &mut FunctionExpression) {
         function.clear_types();
     }

@@ -45,16 +45,12 @@ pub enum Statement {
     If(IfStatement),
     LocalAssign(LocalAssignStatement),
     LocalFunction(LocalFunctionStatement),
+    ExportTypeFunction(ExportTypeFunctionStatement),
+    TypeFunction(TypeFunctionStatement),
     NumericFor(Box<NumericForStatement>),
     Repeat(RepeatStatement),
     While(WhileStatement),
     TypeDeclaration(TypeDeclarationStatement),
-    /// An exported type function, such as `export type function Pairs(...) end`
-    ///
-    /// This is ignored for now
-    ExportTypeFunction(ExportTypeFunctionStatement),
-    /// A type function, such as `type function Pairs(...) end`
-    TypeFunction(TypeFunctionStatement),
 }
 
 impl From<AssignStatement> for Statement {
@@ -108,6 +104,18 @@ impl From<LocalAssignStatement> for Statement {
 impl From<LocalFunctionStatement> for Statement {
     fn from(function: LocalFunctionStatement) -> Statement {
         Statement::LocalFunction(function)
+    }
+}
+
+impl From<TypeFunctionStatement> for Statement {
+    fn from(type_function: TypeFunctionStatement) -> Statement {
+        Statement::TypeFunction(type_function)
+    }
+}
+
+impl From<ExportTypeFunctionStatement> for Statement {
+    fn from(export_type_function: ExportTypeFunctionStatement) -> Statement {
+        Statement::ExportTypeFunction(export_type_function)
     }
 }
 
